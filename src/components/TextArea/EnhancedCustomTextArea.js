@@ -1,6 +1,6 @@
 import withHandlers from "recompose/withHandlers";
 import compose from "recompose/compose";
-import { CustomInput } from "./CustomInput";
+import { CustomTextArea } from "./CustomTextArea";
 
 var enhance = compose(
   withHandlers({
@@ -11,5 +11,5 @@ var enhance = compose(
   })
 );
 
-export var EnhancedCustomInput = enhance(CustomInput);
-EnhancedCustomInput.displayName = "enhance(CustomInput)";
+export var EnhancedCustomTextArea = enhance(CustomTextArea);
+EnhancedCustomTextArea.displayName = "enhance(CustomTextArea)";

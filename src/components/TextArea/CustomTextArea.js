@@ -1,9 +1,15 @@
 import React from "react";
 import T from "prop-types";
-import { Input } from "semantic-ui-react";
+import { TextArea } from "semantic-ui-react";
 
-export var CustomInput = ({ id, onTextChange, value, label, placeholder }) => (
-  <Input
+export var CustomTextArea = ({
+  id,
+  onTextChange,
+  value,
+  label,
+  placeholder
+}) => (
+  <TextArea
     onChange={onTextChange(id)}
     value={value}
     label={label}
@@ -11,7 +17,7 @@ export var CustomInput = ({ id, onTextChange, value, label, placeholder }) => (
   />
 );
 
-CustomInput.propTypes = {
+CustomTextArea.propTypes = {
   value: T.string,
   label: T.string,
   placeholder: T.string

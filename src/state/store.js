@@ -4,7 +4,7 @@ import { routerMiddleware as routerMiddlewareConstructor } from "react-router-re
 import { rootReducer } from "./reducers/";
 import createBrowserHistory from "history/createBrowserHistory.js";
 
-// import { rootEpic } from './epics/';
+import { rootEpic } from "./epics/";
 
 export var store;
 
@@ -12,7 +12,7 @@ export var history = createBrowserHistory();
 
 var routerMiddleware = routerMiddlewareConstructor(history);
 
-var rootEpicMiddleware = createEpicMiddleware();
+var rootEpicMiddleware = createEpicMiddleware(rootEpic);
 
 var composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 

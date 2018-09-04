@@ -1,6 +1,10 @@
 import { SET_INPUT } from "../actions";
 
-var defaultState = { app: {} };
+var defaultState = {
+  app: {
+    login: false
+  }
+};
 
 export var rootReducer = (state = defaultState, { type, payload }) => {
   switch (type) {

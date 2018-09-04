@@ -7,5 +7,5 @@ import "rxjs/add/operator/catch";
 import { combineEpics } from "redux-observable";
 
 import { uploadInfoS3 } from "./uploadInfoS3";
-
-export var rootEpic = combineEpics(uploadInfoS3);
+import { init } from "./app";
+export var rootEpic = combineEpics(init, uploadInfoS3);

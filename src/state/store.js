@@ -1,12 +1,16 @@
 import { createStore, applyMiddleware, compose } from "redux";
 import { createEpicMiddleware } from "redux-observable";
 import { routerMiddleware as routerMiddlewareConstructor } from "react-router-redux";
-import { rootReducer } from './reducers/';
+import { rootReducer } from "./reducers/";
+import createBrowserHistory from "history/createBrowserHistory.js";
+
 // import { rootEpic } from './epics/';
 
 export var store;
 
-var routerMiddleware = routerMiddlewareConstructor();
+export var history = createBrowserHistory();
+
+var routerMiddleware = routerMiddlewareConstructor(history);
 
 var rootEpicMiddleware = createEpicMiddleware();
 

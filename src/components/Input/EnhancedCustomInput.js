@@ -5,7 +5,6 @@ import { CustomInput } from "./CustomInput";
 var enhance = compose(
   withHandlers({
     onTextChange: ({ onChange }) => key => e => {
-      console.log(key);
       onChange(key, e.target.value);
     }
   })

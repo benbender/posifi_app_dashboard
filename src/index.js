@@ -2,14 +2,14 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import "semantic-ui-css/semantic.min.css";
-import { EnhancedAppContainer as App } from "./EnhancedAppContainer";
+import { EnhancedAppContainerWithRouter as App } from "./EnhancedAppConatinerWithRouter";
 import registerServiceWorker from "./registerServiceWorker";
 import { Provider } from "react-redux";
-import { store } from "./state/";
-import { BrowserRouter as Router } from "react-router-dom";
+import { store, history } from "./state/";
+import { ConnectedRouter as Router } from "react-router-redux";
 ReactDOM.render(
   <Provider store={store}>
-    <Router>
+    <Router history={history}>
       <App />
     </Router>
   </Provider>,

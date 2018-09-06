@@ -1,61 +1,51 @@
 import React from "react";
-import { Form, Button, Grid } from "semantic-ui-react";
+import { Form } from "semantic-ui-react";
 import { EnhancedCustomInputContainer as CustomInput } from "../../components/Input";
 import { EnhancedCustomTextAreaContainer as CustomTextArea } from "../../components/TextArea";
 import { EnhancedFileInputContainer as FileInput } from "../../components/FileInput";
+import { EnhancedSaveButtonContainer as Button } from "../../components/SaveButton";
 export var MainInput = () => (
   <div className="MainInput">
-    <Grid columns={1} divided>
-      <Grid.Row>
-        <Grid.Column>
-          <CustomInput
-            id={"room"}
-            label="Habitacion"
-            placeholder="Habitacion..."
-          />
-        </Grid.Column>
-      </Grid.Row>
-      <Grid.Row>
-        <Grid.Column>
-          <CustomInput id={"piece"} label="Obra" placeholder="Obra..." />
-        </Grid.Column>
-      </Grid.Row>
-      <Grid.Row>
-        <Grid.Column>
-          <Form>
-            <CustomTextArea
-              id={"description"}
-              placeholder="Descripcion"
-              style={{ minHeight: 100 }}
-            />
-          </Form>
-        </Grid.Column>
-      </Grid.Row>
-      <Grid.Row>
-        <Grid.Column>
-          <FileInput
-            placeholder={"Foto"}
-            id={"photo"}
-            icon={"image"}
-            text={"Elegir Image"}
-          />
-        </Grid.Column>
-      </Grid.Row>
-      <Grid.Row>
-        <Grid.Column>
-          <FileInput
-            placeholder={"Audio"}
-            id={"audio"}
-            icon={"headphones"}
-            text={"Elegir Audio"}
-          />
-        </Grid.Column>
-      </Grid.Row>
-      <Grid.Row>
-        <Grid.Column>
-          <Button>Subir Informacion</Button>
-        </Grid.Column>
-      </Grid.Row>
-    </Grid>
+    {"Pagina para subir informacion de Obras"}
+    <hr />
+    <CustomInput
+      className={"CustomInput"}
+      id={"room"}
+      label="Habitacion"
+      placeholder="Habitacion..."
+    />
+
+    <CustomInput
+      className={"CustomInput"}
+      id={"piece"}
+      label="Obra"
+      placeholder="Obra..."
+    />
+
+    <Form>
+      <CustomTextArea
+        id={"description"}
+        placeholder="Descripcion"
+        style={{ minHeight: 100 }}
+      />
+    </Form>
+
+    <FileInput
+      className={"FileInput"}
+      placeholder={"Foto"}
+      idType={"photo"}
+      icon={"image"}
+      text={"Elegir Imagen"}
+    />
+
+    <FileInput
+      className={"FileInput"}
+      placeholder={"Audio"}
+      idType={"audio"}
+      icon={"headphones"}
+      text={"Elegir Audio"}
+    />
+
+    <Button>Subir Informacion</Button>
   </div>
 );

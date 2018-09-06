@@ -8,7 +8,7 @@ var enhance = compose(
       const file = e.target.files[0];
       if (file) {
         const localImageUrl = window.URL.createObjectURL(file);
-        onLoad(key, localImageUrl);
+        onLoad(key, localImageUrl, file.name);
       } else {
         alert("File uploaded is not valid.");
       }

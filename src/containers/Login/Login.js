@@ -1,27 +1,24 @@
 import React from "react";
+import { EnhancedCustomInputContainer as CustomInput } from "../../components/Input";
+import { EnhancedLoginButtonContainer as Button } from "../../components/LoginButton";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export var Login = () => (
   <div className="wrapper">
-    <form className="form-signin">
-      <h2 className="form-signin-heading">Please login</h2>
-      <input
-        type="text"
-        className="form-control"
-        name="username"
-        placeholder="Email Address"
-        required=""
-        autoFocus=""
+    <div className="form-signin">
+      <h2 className="form-signin-heading">Por favor iniciar sesion</h2>
+
+      <CustomInput id={"user"} label="Usuario" placeholder="Usuario..." />
+
+      <CustomInput
+        id={"password"}
+        label="Contraseña"
+        placeholder="Constraseña..."
       />
-      <input
-        type="password"
-        className="form-control"
-        name="password"
-        placeholder="Password"
-        required=""
-      />
-      <button className="btn btn-lg btn-primary btn-block" type="submit">
-        Login
-      </button>
-    </form>
+
+      <Button>Login</Button>
+      <ToastContainer />
+    </div>
   </div>
 );

@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 import { EnhancedFileInput } from "./EnhancedFileInput";
 import { SET_FILE } from "../../state/actions";
 var mapStateToProps = (state, ownProps) => ({
-  value: ownProps.id === "photo" ? state.imageName : state.audioName
+  value: ownProps.idType === "photo" ? state.imageName : state.audioName
 });
 
 var mapActionsToProps = {

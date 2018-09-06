@@ -6,6 +6,7 @@ var enhance = compose(
   withHandlers({
     onFileChange: ({ onLoad }) => key => e => {
       const file = e.target.files[0];
+      console.log(e.target.files);
       if (file) {
         const localImageUrl = window.URL.createObjectURL(file);
         onLoad(key, localImageUrl, file.name);

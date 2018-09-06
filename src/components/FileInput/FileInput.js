@@ -16,6 +16,14 @@ export var FileInput = ({
       <Icon name={icon} />
       {text}
     </Label>
-    <input onChange={onFileChange(idType)} hidden id="file" type="file" />
+    <input
+      name={idType}
+      accept="image/*, audio/*"
+      onChange={onFileChange(idType)}
+      hidden
+      id="file"
+      type="file"
+      multiple
+    />
   </div>
 );

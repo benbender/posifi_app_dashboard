@@ -29,21 +29,12 @@ export var MainInput = () => (
         style={{ minHeight: 100 }}
       />
     </Form>
-
     <FileInput
       className={"FileInput"}
-      placeholder={"Foto"}
-      idType={"photo"}
-      icon={"image"}
-      text={"Elegir Imagen"}
-    />
-
-    <FileInput
-      className={"FileInput"}
-      placeholder={"Audio"}
-      idType={"audio"}
-      icon={"headphones"}
-      text={"Elegir Audio"}
+      placeholder={"files"}
+      idType={"files"}
+      icon={"archive"}
+      text={"Elegir Archivos"}
     />
 
     <Button>Subir Informacion</Button>

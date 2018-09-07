@@ -2,13 +2,13 @@ import { connect } from "react-redux";
 import { EnhancedFileInput } from "./EnhancedFileInput";
 import { SET_FILE } from "../../state/actions";
 var mapStateToProps = (state, ownProps) => ({
-  value: ownProps.idType === "photo" ? state.imageName : state.audioName
+  value: `${state.imageName}, ${state.audioName}`
 });
 
 var mapActionsToProps = {
-  onLoad: (key, value, name) => ({
+  onLoad: files => ({
     type: SET_FILE,
-    payload: { key, value, name }
+    payload: { files }
   })
 };
 

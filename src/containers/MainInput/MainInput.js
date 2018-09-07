@@ -4,6 +4,9 @@ import { EnhancedCustomInputContainer as CustomInput } from "../../components/In
 import { EnhancedCustomTextAreaContainer as CustomTextArea } from "../../components/TextArea";
 import { EnhancedFileInputContainer as FileInput } from "../../components/FileInput";
 import { EnhancedSaveButtonContainer as Button } from "../../components/SaveButton";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export var MainInput = () => (
   <div className="MainInput">
     {"Pagina para subir informacion de Obras"}
@@ -38,5 +41,6 @@ export var MainInput = () => (
     />
 
     <Button>Subir Informacion</Button>
+    <ToastContainer />
   </div>
 );

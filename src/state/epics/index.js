@@ -7,6 +7,5 @@ import "rxjs/add/operator/catch";
 import "rxjs/add/operator/delay";
 import { combineEpics } from "redux-observable";
 
-import { uploadInfoS3 } from "./uploadInfoS3";
-import { init, login } from "./app";
+import { init, login, uploadInfoS3 } from "./app";
 export var rootEpic = combineEpics(init, login, uploadInfoS3);

@@ -5,11 +5,16 @@ import { FileInput } from "./FileInput";
 var enhance = compose(
   withHandlers({
     onFileChange: ({ onLoad }) => key => e => {
-      const file = e.target.files[0];
-      console.log(e.target.files);
-      if (file) {
-        const localImageUrl = window.URL.createObjectURL(file);
-        onLoad(key, localImageUrl, file.name);
+      const files = e.target.files;
+      var goFiles = Array.from(files).map(file => {
+        return {
+          name: file.name,
+          type: file.type.split("/")[0],
+          fileUrl: window.URL.createObjectURL(file)
+        };
+      });
+      if (files) {
+        onLoad(goFiles);
       } else {
         alert("File uploaded is not valid.");
       }

@@ -58,7 +58,7 @@ export var uploadInfoS3 = ($action, store) => {
   return $action
     .ofType(SAVE_DATA_REQUEST)
     .delay(500)
-    .switchMap(async () => {
+    .switchMap(() => {
       console.log(process.env);
       var state = store.value;
       var s3bucket = new AWS.S3({
@@ -75,7 +75,7 @@ export var uploadInfoS3 = ($action, store) => {
           pauseOnHover: true,
           draggable: true
         });
-        return Observable.from([{ type: SAVE_DATA_ERROR }]);
+        return Observable.of({ type: SAVE_DATA_ERROR });
       }
       if (state.audio !== "") {
         var params = {
@@ -83,11 +83,24 @@ export var uploadInfoS3 = ($action, store) => {
           Key: `mnav/${state.audioName}`,
           Body: state.audio
         };
-        await s3bucket
+        s3bucket
           .upload(params)
           .promise()
-          .catch(err => console.log(err));
+          .then(() => {
+            return Observable.of({ type: SAVE_DATA_SUCCESS });
+          });
       }
-      return Observable.from([{ type: SAVE_DATA_SUCCESS }]);
+      toast.error("No se pudo subir su informacion, intente de vuelta", {
+        position: "top-right",
+        autoClose: false,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true
+      });
+      return Observable.of({ type: SAVE_DATA_ERROR });
+    })
+    .catch(err => {
+      console.log(err);
     });
 };

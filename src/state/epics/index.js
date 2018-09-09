@@ -5,6 +5,7 @@ import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/catch";
 import "rxjs/add/operator/delay";
+import "rxjs/add/observable/defer";
 import { combineEpics } from "redux-observable";
 
 import { init, login, uploadInfoS3 } from "./app";

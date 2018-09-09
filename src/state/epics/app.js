@@ -59,12 +59,12 @@ export var uploadInfoS3 = ($action, store) => {
     .ofType(SAVE_DATA_REQUEST)
     .delay(500)
     .switchMap(() => {
-      console.log(process.env);
       var state = store.value;
       var s3bucket = new AWS.S3({
         accessKeyId: process.env.REACT_APP_IAM_USER_KEY,
         secretAccessKey: process.env.REACT_APP_IAM_USER_SECRET,
-        Bucket: process.env.REACT_APP_BUCKET
+        Bucket: process.env.REACT_APP_BUCKET,
+        region: "sa-east-1"
       });
       if (state.piece === "" || state.piece === undefined) {
         toast.error("Error, debe poner un nombre de obra", {
@@ -83,14 +83,30 @@ export var uploadInfoS3 = ($action, store) => {
           Key: `mnav/${state.audioName}`,
           Body: state.audio
         };
+
         s3bucket
           .upload(params)
           .promise()
           .then(() => {
             return Observable.of({ type: SAVE_DATA_SUCCESS });
+          })
+          .catch(err => {
+            console.log(err);
+            toast.error("No se pudo subir su informacion, intente de vuelta", {
+              position: "top-right",
+              autoClose: false,
+              hideProgressBar: true,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true
+            });
+            return Observable.of({ type: SAVE_DATA_ERROR });
           });
+        return Observable.empty();
       }
-      toast.error("No se pudo subir su informacion, intente de vuelta", {
+      if (state.photo !== "") {
+      }
+      toast.error("Por favor proveea archivos para subir", {
         position: "top-right",
         autoClose: false,
         hideProgressBar: true,

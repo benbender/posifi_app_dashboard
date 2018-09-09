@@ -11,12 +11,6 @@ export var MainInput = () => (
   <div className="MainInput">
     {"Pagina para subir informacion de Obras"}
     <hr />
-    <CustomInput
-      className={"CustomInput"}
-      id={"room"}
-      label="Habitacion"
-      placeholder="Habitacion..."
-    />
 
     <CustomInput
       className={"CustomInput"}

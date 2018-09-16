@@ -1,6 +1,9 @@
-import { Observable } from "rxjs";
+import { from, of, empty, concat, iif } from "rxjs";
+import { switchMap, catchError } from "rxjs/operators";
 import { push } from "react-router-redux";
 import { toast } from "react-toastify";
+import { kebabCase } from "lodash";
+import { ajax } from "rxjs/ajax";
 import AWS from "aws-sdk";
 import {
   APP_INIT,
@@ -18,12 +21,12 @@ export var init = ($action, store) =>
     if (logged === "false") {
       return toLoginPage();
     } else {
-      return Observable.from([push("/")]);
+      return from([push("/")]);
     }
   });
 
 function toLoginPage() {
-  return Observable.from([push("/auth")]);
+  return from([push("/auth")]);
 }
 
 export var login = ($action, store) =>
@@ -35,10 +38,7 @@ export var login = ($action, store) =>
       var user = store.value.user;
       if (user === "admin" && password === "admin") {
         localStorage.setItem("logged", true);
-        return Observable.from([
-          { type: LOGIN_SUCCESS },
-          push({ pathname: "/" })
-        ]);
+        return from([{ type: LOGIN_SUCCESS }, push({ pathname: "/" })]);
       } else {
         toast.error("Error de usuario/contraseña", {
           position: "top-right",
@@ -48,13 +48,26 @@ export var login = ($action, store) =>
           pauseOnHover: true,
           draggable: true
         });
-        return Observable.from([
+        return from([
           { type: LOGIN_ERROR, payload: "Usuario o contraseña invalidos" }
         ]);
       }
     });
 
-export var uploadInfoS3 = ($action, store) => {
+export var showMessage = $action =>
+  $action.ofType(`SAVE_DATA_SUCCESS_MAIN`).switchMap(() => {
+    toast.success("Datos subidos con exito", {
+      position: "top-right",
+      autoClose: false,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true
+    });
+    return of({ type: `POP_MESSAGE` });
+  });
+
+export var uploadInfo = ($action, store) => {
   return $action
     .ofType(SAVE_DATA_REQUEST)
     .delay(500)
@@ -75,38 +88,81 @@ export var uploadInfoS3 = ($action, store) => {
           pauseOnHover: true,
           draggable: true
         });
-        return Observable.of({ type: SAVE_DATA_ERROR });
+        return of({ type: SAVE_DATA_ERROR });
       }
+      var audioObs = empty();
+      var photoObs = empty();
+      var params = {};
+      var buf;
+      var err = false;
       if (state.audio !== "") {
-        var params = {
+        buf = new Buffer(
+          state.audio.replace(/^data:audio\/\w+;base64,/, ""),
+          "base64"
+        );
+
+        params = {
           Bucket: process.env.REACT_APP_BUCKET,
-          Key: `mnav/${state.audioName}`,
-          Body: state.audio
+          Key: `${kebabCase(state.piece)}/${state.audioName}`,
+          Body: buf,
+          ContentEncoding: "base64",
+          ContentType: "audio"
         };
 
-        s3bucket
-          .upload(params)
-          .promise()
-          .then(() => {
-            return Observable.of({ type: SAVE_DATA_SUCCESS });
+        audioObs = from(s3bucket.upload(params).promise()).pipe(
+          switchMap(() => {
+            return of({ type: SAVE_DATA_SUCCESS });
+          }),
+          catchError(() => of({ type: SAVE_DATA_ERROR }))
+        );
+      }
+      if (state.image !== "") {
+        buf = new Buffer(
+          state.image.replace(/^data:image\/\w+;base64,/, ""),
+          "base64"
+        );
+
+        params = {
+          Bucket: process.env.REACT_APP_BUCKET,
+          Key: `${kebabCase(state.piece)}/${state.imageName}`,
+          Body: buf,
+          ContentEncoding: "base64",
+          ContentType: "image"
+        };
+
+        photoObs = from(s3bucket.upload(params).promise()).pipe(
+          switchMap(() => {
+            return of({ type: `SAVE_DATA_SUCCESS2` });
+          }),
+          catchError(() => of({ type: SAVE_DATA_ERROR }))
+        );
+      }
+
+      if (state.audio !== undefined || state.image !== undefined) {
+        var fetchObs = ajax({
+          url: `${process.env.REACT_APP_API}/pieces`,
+          method: "post",
+          body: JSON.stringify({
+            audio_url: "unaUrl",
+            description: "test",
+            image_url: "test",
+            location_name: "nuevo"
           })
-          .catch(err => {
-            console.log(err);
-            toast.error("No se pudo subir su informacion, intente de vuelta", {
-              position: "top-right",
-              autoClose: false,
-              hideProgressBar: true,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true
-            });
-            return Observable.of({ type: SAVE_DATA_ERROR });
-          });
-        return Observable.empty();
+        }).switchMap(() => ({ type: `API_SUCCEED` }));
       }
-      if (state.photo !== "") {
-      }
-      toast.error("Por favor proveea archivos para subir", {
+      return concat(
+        audioObs,
+        photoObs,
+        fetchObs,
+        iif(
+          () => err === false,
+          of({ type: `SAVE_DATA_SUCCESS_MAIN` }),
+          of({ type: SAVE_DATA_ERROR })
+        )
+      );
+    })
+    .catch(err => {
+      toast.error("No se pudo subir informacion, intente luego", {
         position: "top-right",
         autoClose: false,
         hideProgressBar: true,
@@ -114,9 +170,6 @@ export var uploadInfoS3 = ($action, store) => {
         pauseOnHover: true,
         draggable: true
       });
-      return Observable.of({ type: SAVE_DATA_ERROR });
-    })
-    .catch(err => {
       console.log(err);
     });
 };

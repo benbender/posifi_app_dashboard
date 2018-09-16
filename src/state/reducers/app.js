@@ -47,7 +47,11 @@ export var rootReducer = (state = defaultState, { type, payload }) => {
     case SAVE_DATA_SUCCESS:
       return {
         ...state,
-        loading: false
+        loading: false,
+        imageName: "",
+        audioName: "",
+        audio: "",
+        image: ""
       };
     default:
       return { ...state };

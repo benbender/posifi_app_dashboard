@@ -5,7 +5,6 @@ import { CustomTextArea } from "./CustomTextArea";
 var enhance = compose(
   withHandlers({
     onTextChange: ({ onChange }) => key => e => {
-      console.log(key);
       onChange(key, e.target.value);
     }
   })

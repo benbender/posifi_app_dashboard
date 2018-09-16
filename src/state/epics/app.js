@@ -3,7 +3,6 @@ import { switchMap, catchError } from "rxjs/operators";
 import { push } from "react-router-redux";
 import { toast } from "react-toastify";
 import { kebabCase } from "lodash";
-import { ajax } from "rxjs/ajax";
 import AWS from "aws-sdk";
 import {
   APP_INIT,
@@ -92,6 +91,7 @@ export var uploadInfo = ($action, store) => {
       }
       var audioObs = empty();
       var photoObs = empty();
+      var descObs = empty();
       var params = {};
       var buf;
       var err = false;
@@ -138,22 +138,27 @@ export var uploadInfo = ($action, store) => {
         );
       }
 
-      if (state.audio !== undefined || state.image !== undefined) {
-        var fetchObs = ajax({
-          url: `${process.env.REACT_APP_API}/pieces`,
-          method: "post",
-          body: JSON.stringify({
-            audio_url: "unaUrl",
-            description: "test",
-            image_url: "test",
-            location_name: "nuevo"
-          })
-        }).switchMap(() => ({ type: `API_SUCCEED` }));
+      if (
+        (state.audio !== undefined || state.image !== undefined) &&
+        (state.description !== "" && state.description !== undefined)
+      ) {
+        params = {
+          Bucket: process.env.REACT_APP_BUCKET,
+          Key: `${kebabCase(state.piece)}/${state.piece}.json`,
+          Body: JSON.stringify({ desc: state.description })
+        };
+
+        descObs = from(s3bucket.upload(params).promise()).pipe(
+          switchMap(() => {
+            return of({ type: `SAVE_DATA_SUCCESS_DESC` });
+          }),
+          catchError(() => of({ type: SAVE_DATA_ERROR }))
+        );
       }
       return concat(
         audioObs,
         photoObs,
-        fetchObs,
+        descObs,
         iif(
           () => err === false,
           of({ type: `SAVE_DATA_SUCCESS_MAIN` }),

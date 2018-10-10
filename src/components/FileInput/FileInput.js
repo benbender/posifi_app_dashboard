@@ -5,23 +5,25 @@ export var FileInput = ({
   className,
   idType,
   icon,
+  id,
   onFileChange,
+  accept,
   text,
   value,
   placeholder
 }) => (
   <div className={className}>
     <Input value={value} placeholder={placeholder} />
-    <Label width="4" as="label" htmlFor="file" size="big">
+    <Label width="4" as="label" htmlFor={id} size="big">
       <Icon name={icon} />
       {text}
     </Label>
     <input
       name={idType}
-      accept="image/*, audio/*"
+      accept={accept}
       onChange={onFileChange(idType)}
       hidden
-      id="file"
+      id={id}
       type="file"
       multiple
     />

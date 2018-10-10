@@ -4,8 +4,8 @@ import { SaveButton } from "./SaveButton";
 
 var enhance = compose(
   withHandlers({
-    onClick: ({ upload }) => e => {
-      upload();
+    onClick: ({ upload }) => key => e => {
+      upload(key);
     }
   })
 );

@@ -9,18 +9,30 @@ import {
   LOGIN_ERROR,
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
-  SAVE_DATA_REQUEST,
   SAVE_DATA_ERROR,
-  SAVE_DATA_SUCCESS
+  SAVE_DATA_SUCCESS,
+  CREATE_DATA_REQUEST,
+  EDIT_DATA_REQUEST
 } from "../actions";
+import { ajax } from "rxjs/ajax";
 
-export var init = ($action, store) =>
+export var init = $action =>
   $action.ofType(APP_INIT).switchMap(() => {
     var logged = localStorage.getItem("logged");
     if (logged === "false") {
       return toLoginPage();
     } else {
-      return from([push("/")]);
+      return ajax({
+        url: process.env.REACT_APP_API + "/pieces",
+        method: "GET"
+      })
+        .switchMap(data => {
+          return of({
+            type: `POPULATE_DATA`,
+            payload: data.response
+          });
+        })
+        .catch(err => of({ type: "ERROR" }));
     }
   });
 
@@ -68,7 +80,7 @@ export var showMessage = $action =>
 
 export var uploadInfo = ($action, store) => {
   return $action
-    .ofType(SAVE_DATA_REQUEST)
+    .ofType(CREATE_DATA_REQUEST)
     .delay(500)
     .switchMap(() => {
       var state = store.value;
@@ -91,9 +103,10 @@ export var uploadInfo = ($action, store) => {
       }
       var audioObs = empty();
       var photoObs = empty();
-      var descObs = empty();
       var params = {};
       var buf;
+      var audioUrl = null;
+      var imageUrl = null;
       var err = false;
       if (state.audio !== "") {
         buf = new Buffer(
@@ -101,9 +114,10 @@ export var uploadInfo = ($action, store) => {
           "base64"
         );
 
+        audioUrl = `${kebabCase(state.piece)}/${state.audioName}`;
         params = {
           Bucket: process.env.REACT_APP_BUCKET,
-          Key: `${kebabCase(state.piece)}/${state.audioName}`,
+          Key: audioUrl,
           Body: buf,
           ContentEncoding: "base64",
           ContentType: "audio"
@@ -122,9 +136,11 @@ export var uploadInfo = ($action, store) => {
           "base64"
         );
 
+        imageUrl = `${kebabCase(state.piece)}/${state.imageName}`;
+
         params = {
           Bucket: process.env.REACT_APP_BUCKET,
-          Key: `${kebabCase(state.piece)}/${state.imageName}`,
+          Key: imageUrl,
           Body: buf,
           ContentEncoding: "base64",
           ContentType: "image"
@@ -138,27 +154,24 @@ export var uploadInfo = ($action, store) => {
         );
       }
 
-      if (
-        (state.audio !== undefined || state.image !== undefined) &&
-        (state.description !== "" && state.description !== undefined)
-      ) {
-        params = {
-          Bucket: process.env.REACT_APP_BUCKET,
-          Key: `${kebabCase(state.piece)}/${state.piece}.json`,
-          Body: JSON.stringify({ desc: state.description })
-        };
+      var $ajax = ajax({
+        url: process.env.REACT_APP_API + "/pieces",
+        method: "POST",
+        body: {
+          audio_url: audioUrl,
+          description: state.description || null,
+          image_url: imageUrl,
+          location_name: state.piece
+        },
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }).switchMap(() => of({ type: SAVE_DATA_SUCCESS }));
 
-        descObs = from(s3bucket.upload(params).promise()).pipe(
-          switchMap(() => {
-            return of({ type: `SAVE_DATA_SUCCESS_DESC` });
-          }),
-          catchError(() => of({ type: SAVE_DATA_ERROR }))
-        );
-      }
       return concat(
         audioObs,
         photoObs,
-        descObs,
+        $ajax,
         iif(
           () => err === false,
           of({ type: `SAVE_DATA_SUCCESS_MAIN` }),
@@ -176,5 +189,163 @@ export var uploadInfo = ($action, store) => {
         draggable: true
       });
       console.log(err);
+      return of({ type: SAVE_DATA_ERROR });
     });
+};
+
+export var createPage = $action =>
+  $action.ofType(`CHOOSE_PAGE`).switchMap(action => {
+    if (action.payload === "create") {
+      return from([push("/create")]);
+    } else {
+      return empty();
+    }
+  });
+
+export var sendToEdit = $action =>
+  $action.ofType(`SEND_EDIT`).switchMap(action => {
+    return from([push(`/edit/${action.payload.id}`)]);
+  });
+
+export var goBack = $action =>
+  $action.ofType(`GO_BACK`).switchMap(action => {
+    return from([push(`/`)]);
+  });
+
+export var editInfo = ($action, store) => {
+  return $action
+    .ofType(EDIT_DATA_REQUEST)
+    .delay(200)
+    .switchMap(() => {
+      var state = store.value;
+      var s3bucket = new AWS.S3({
+        accessKeyId: process.env.REACT_APP_IAM_USER_KEY,
+        secretAccessKey: process.env.REACT_APP_IAM_USER_SECRET,
+        Bucket: process.env.REACT_APP_BUCKET,
+        region: "sa-east-1"
+      });
+
+      var audioObs = empty();
+      var photoObs = empty();
+      var params = {};
+      var buf;
+      var audioUrl = undefined;
+      var imageUrl = undefined;
+      var err = false;
+      if (state.audio !== "" && state.audio !== undefined) {
+        buf = new Buffer(
+          state.audio.replace(/^data:audio\/\w+;base64,/, ""),
+          "base64"
+        );
+
+        audioUrl = `${kebabCase(state.piece)}/${state.audioName}`;
+        params = {
+          Bucket: process.env.REACT_APP_BUCKET,
+          Key: audioUrl,
+          Body: buf,
+          ContentEncoding: "base64",
+          ContentType: "audio"
+        };
+
+        audioObs = from(s3bucket.upload(params).promise()).pipe(
+          switchMap(() => {
+            return of({ type: SAVE_DATA_SUCCESS });
+          }),
+          catchError(() => of({ type: SAVE_DATA_ERROR }))
+        );
+      }
+      if (state.image !== "" && state.image !== undefined) {
+        buf = new Buffer(
+          state.image.replace(/^data:image\/\w+;base64,/, ""),
+          "base64"
+        );
+
+        imageUrl = `${kebabCase(state.piece)}/${state.imageName}`;
+
+        params = {
+          Bucket: process.env.REACT_APP_BUCKET,
+          Key: imageUrl,
+          Body: buf,
+          ContentEncoding: "base64",
+          ContentType: "image"
+        };
+
+        photoObs = from(s3bucket.upload(params).promise()).pipe(
+          switchMap(() => {
+            return of({ type: `SAVE_DATA_SUCCESS2` });
+          }),
+          catchError(() => of({ type: SAVE_DATA_ERROR }))
+        );
+      }
+      console.log({
+        audio_url: audioUrl,
+        description: state.description || undefined,
+        image_url: imageUrl,
+        location_name: state.piece || undefined
+      });
+      var $ajax = ajax({
+        url: process.env.REACT_APP_API + `/pieces/${state.editId}`,
+        method: "PUT",
+        body: {
+          audio_url: audioUrl,
+          description: state.description || undefined,
+          image_url: imageUrl,
+          location_name: state.piece || undefined
+        },
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }).switchMap(() => of({ type: SAVE_DATA_SUCCESS }));
+
+      return concat(
+        audioObs,
+        photoObs,
+        $ajax,
+        iif(
+          () => err === false,
+          of({ type: `SAVE_DATA_SUCCESS_MAIN` }),
+          of({ type: SAVE_DATA_ERROR })
+        )
+      );
+    })
+    .catch(err => {
+      toast.error("No se pudo subir informacion, intente luego", {
+        position: "top-right",
+        autoClose: false,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true
+      });
+      console.log(err);
+      return of({ type: SAVE_DATA_ERROR });
+    });
+};
+
+export var del = ($action, store) => {
+  return $action.ofType(`DEL_ITEM`).switchMap(() => {
+    var state = store.value;
+    return ajax({
+      url: process.env.REACT_APP_API + `/pieces/${state.editId}`,
+      method: "DELETE"
+    })
+      .switchMap(() =>
+        concat(
+          of({ type: `DELETE_SUCCESS`, payload: state.editId }),
+          from([push("/")])
+        )
+      )
+      .catch(err => {
+        toast.error("No se pudo eliminar, intente luego", {
+          position: "top-right",
+          autoClose: false,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true
+        });
+        console.log(err);
+        return of({ type: SAVE_DATA_ERROR });
+      });
+  });
 };

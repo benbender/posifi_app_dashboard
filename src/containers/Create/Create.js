@@ -6,16 +6,10 @@ import { EnhancedFileInputContainer as FileInput } from "../../components/FileIn
 import { EnhancedSaveButtonContainer as CustomButton } from "../../components/SaveButton";
 import { EnhancedBackButtonContainer as Back } from "../../components/BackButton";
 import { ToastContainer } from "react-toastify";
-import { EnhancedDeleteButtonContainer as Delete } from "../../components/DeleteButton";
 import "react-toastify/dist/ReactToastify.css";
-
-export var MainInput = ({ name, id }) => (
+export var Create = () => (
   <div className="MainInput">
     {"Pagina para subir informacion de Obras"}
-    <br />
-    {"Complete los campos que quiera editar y haga click en editar informacion"}
-    <hr />
-    {`Usted esta editando la obra : ${name}`}
     <hr />
 
     <CustomInput
@@ -51,16 +45,13 @@ export var MainInput = ({ name, id }) => (
     <FileInput
       className={"FileInput"}
       placeholder={"Audios..."}
-      idType={"audiName"}
+      idType={"audioName"}
       icon={"headphones"}
       text={"Elegir Audio"}
       accept={"audio/*"}
       id={"audio"}
     />
-
-    <CustomButton>Editar Informacion</CustomButton>
-    <Delete >Eliminar</Delete>
-
+    <CustomButton id={"create"}>Subir Informacion</CustomButton>
     <Back>Atras</Back>
     <ToastContainer />
   </div>

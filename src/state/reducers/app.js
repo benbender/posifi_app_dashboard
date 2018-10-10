@@ -6,7 +6,8 @@ import {
   SET_FILE,
   SAVE_DATA_SUCCESS,
   SAVE_DATA_ERROR,
-  SAVE_DATA_REQUEST
+  CREATE_DATA_REQUEST,
+  EDIT_DATA_REQUEST
 } from "../actions";
 
 var defaultState = {
@@ -16,7 +17,7 @@ var defaultState = {
   imageName: "",
   audioName: "",
   audio: "",
-  photo: ""
+  image: ""
 };
 
 export var rootReducer = (state = defaultState, { type, payload }) => {
@@ -26,13 +27,40 @@ export var rootReducer = (state = defaultState, { type, payload }) => {
         ...state,
         [payload.key]: payload.value
       };
+
+    case `DELETE_SUCCESS`:
+      return {
+        ...state,
+        pieces: setPieces(payload, state)
+      };
+
+    case `GO_BACK`:
+      return {
+        ...state,
+        image: "",
+        audio: "",
+        audioName: "",
+        imageName: ""
+      };
+    case `SEND_EDIT`:
+      return {
+        ...state,
+        editId: payload.id,
+        editName: payload.name
+      };
+    case `POPULATE_DATA`:
+      return {
+        ...state,
+        pieces: payload
+      };
     case SET_FILE:
       return {
         ...state,
         ...unwrapFiles(payload.files)
       };
     case LOGIN_REQUEST:
-    case SAVE_DATA_REQUEST:
+    case CREATE_DATA_REQUEST:
+    case EDIT_DATA_REQUEST:
       return {
         ...state,
         loading: true
@@ -65,4 +93,10 @@ function unwrapFiles(files) {
     object[`${element.type}Name`] = element.name;
   });
   return object;
+}
+
+function setPieces(id, state) {
+  return state.pieces.filter(obj => {
+    return obj.piece_id !== id;
+  });
 }
